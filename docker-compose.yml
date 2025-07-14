@@ -1,0 +1,12 @@
+version: "3.9"
+services:
+  nginx-rtmp:
+    build: .
+    container_name: nginx-rtmp
+    ports:
+      - "1935:1935"
+      - "8080:8080"
+    # 512 MiB in‑memory tmpfs for playlists & segments
+    tmpfs:
+      - /mnt/ramdisk:rw,size=512m
+    restart: unless-stopped
