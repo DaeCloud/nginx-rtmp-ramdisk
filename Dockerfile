@@ -11,6 +11,6 @@ COPY nginx.conf /etc/nginx/nginx.conf
 EXPOSE 1935 8080
 
 # Health‑check
-HEALTHCHECK CMD wget -qO- http://localhost:8080/ || exit 1
+HEALTHCHECK CMD wget -qO- http://localhost:8080/health || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]
