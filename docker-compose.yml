@@ -6,7 +6,11 @@ services:
     ports:
       - "1935:1935"
       - "8080:8080"
-    # 512 MiB in‑memory tmpfs for playlists & segments
+    # 512MiB tmpfs inside container; change or bind-mount host RAM disk if needed
     tmpfs:
       - /mnt/ramdisk:rw,size=512m
+    # Uncomment or pass via environment to enable pushing
+    # environment:
+    #   PASS_STREAM: "true"
+    #   PASS_URL: "rtmp://edge.example.com/live"
     restart: unless-stopped
