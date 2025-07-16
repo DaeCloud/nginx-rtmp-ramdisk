@@ -50,6 +50,10 @@ fi
 ############################################
 cat >> /etc/nginx/nginx.conf <<'NGINX_CONF'
         }
+
+        application stat {
+            live on;
+        }
     }
 }
 
@@ -70,6 +74,15 @@ http {
             }
             root /mnt/ramdisk/hls;
             add_header Cache-Control no-cache;
+        }
+
+        location /stat {
+            rtmp_stat all;
+            rtmp_stat_stylesheet stat.xsl;
+        }
+
+        location /stat.xsl {
+            root /usr/local/nginx/html;
         }
 
         location /health {
