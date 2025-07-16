@@ -68,7 +68,7 @@ http {
                 application/vnd.apple.mpegurl m3u8;
                 video/mp2t ts;
             }
-            root /mnt/ramdisk;
+            root /mnt/ramdisk/hls;
             add_header Cache-Control no-cache;
         }
 
