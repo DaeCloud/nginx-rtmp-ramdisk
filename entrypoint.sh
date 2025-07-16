@@ -1,7 +1,13 @@
 #!/bin/sh
 set -e
 
-# Build nginx.conf dynamically to insert optional RTMP push target
+# Example env:
+#   PASS_STREAM=true
+#   PASS_URL="rtmp://edge1/live,rtmp://edge2/live , rtmp://edge3/live"
+
+############################################
+# 1. Begin the fixed part of nginx.conf
+############################################
 cat > /etc/nginx/nginx.conf <<'NGINX_CONF'
 load_module modules/ngx_rtmp_module.so;
 
@@ -24,12 +30,24 @@ rtmp {
             hls_cleanup on;
 NGINX_CONF
 
-# Append push directive if requested
+############################################
+# 2. Conditionally add one or many push targets
+############################################
 if [ "$PASS_STREAM" = "true" ] && [ -n "$PASS_URL" ]; then
-    echo "                push $PASS_URL;" >> /etc/nginx/nginx.conf
+    # Temporarily set IFS to comma and whitespace
+    OLD_IFS=$IFS
+    IFS=','
+    for TARGET in $PASS_URL; do
+        # Trim leading/trailing whitespace
+        TARGET=$(echo "$TARGET" | xargs)
+        [ -n "$TARGET" ] && echo "            push $TARGET;" >> /etc/nginx/nginx.conf
+    done
+    IFS=$OLD_IFS
 fi
 
-# Close the RTMP and main blocks
+############################################
+# 3. Close the RTMP / HTTP blocks
+############################################
 cat >> /etc/nginx/nginx.conf <<'NGINX_CONF'
         }
     }
@@ -67,5 +85,5 @@ http {
 }
 NGINX_CONF
 
-# Launch nginx
+# 4. Start nginx in foreground
 exec nginx -g 'daemon off;'
