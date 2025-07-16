@@ -10,7 +10,7 @@ RUN mkdir -p /mnt/ramdisk/hls && chown -R nginx:nginx /mnt/ramdisk
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-COPY stat.xsl /stat.xsl
+COPY stat.xsl /mnt/ramdisk/stat.xsl
 
 EXPOSE 1935 8080
 
