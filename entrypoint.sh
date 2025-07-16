@@ -50,10 +50,6 @@ fi
 ############################################
 cat >> /etc/nginx/nginx.conf <<'NGINX_CONF'
         }
-
-        application stat {
-            live on;
-        }
     }
 }
 
@@ -78,11 +74,17 @@ http {
 
         location /stat {
             rtmp_stat all;
+
+            # Use this stylesheet to view XML as web page
+            # in browser
             rtmp_stat_stylesheet stat.xsl;
         }
 
         location /stat.xsl {
-            root /mnt/ramdisk/hls;
+            # XML stylesheet to view RTMP stats.
+            # Copy stat.xsl wherever you want
+            # and put the full directory path here
+            root /mnt/ramdisk/stat.xsl/;
         }
 
         location /health {
