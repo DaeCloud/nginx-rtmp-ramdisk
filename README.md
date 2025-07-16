@@ -1,67 +1,53 @@
-# nginx‑rtmp‑ramdisk
+# nginx‑rtmp‑ramdisk (env‑push version)
 
-**Live‑streaming stack in one container.**  
-* RTMP ingest on **rtmp://YOUR_HOST/live/STREAM_KEY**  
-* Automatic HLS playlist/segment generation  
-* Play via **http://YOUR_HOST:8080/hls/STREAM_KEY.m3u8**  
-* All `.m3u8` playlists and `.ts` segments are written to a RAM‑disk (`tmpfs`) and automatically cleaned up.
+Production‑ready NGINX‑RTMP container that:
+1. Accepts RTMP ingest at **rtmp://HOST/live/STREAM_KEY**
+2. Generates HLS playlists/segments in a RAM disk and serves them over HTTP `:8080`
+3. **Optionally relays** (pushes) the same stream to another RTMP endpoint, controlled by environment variables.
 
-## Folder layout
+## Environment variables
 
+| Variable | Purpose | Example |
+| -------- | ------- | ------- |
+| `PASS_STREAM` | `"true"` to enable RTMP push, anything else / unset disables it | `true` |
+| `PASS_URL` | Destination RTMP URL | `rtmp://edge.example.com/live` |
+
+If `PASS_STREAM=true` **and** `PASS_URL` is set, the container inserts:  
+```nginx
+push $PASS_URL;
 ```
-├── Dockerfile
-├── docker-compose.yml   # optional convenience wrapper
-└── nginx.conf
-```
+into the `application live` block at runtime.
 
 ## Build
 
 ```bash
-docker build -t nginx-rtmp-ramdisk .
+docker build -t nginx-rtmp-ramdisk:latest .
 ```
 
-## Run
-
-**Bare `docker run`:**
+## Run quick test (with relay)
 
 ```bash
 docker run -d --name rtmp \
   -p 1935:1935 -p 8080:8080 \
   --tmpfs /mnt/ramdisk:rw,size=512m \
-  nginx-rtmp-ramdisk
+  -e PASS_STREAM=true \
+  -e PASS_URL=rtmp://relay.example.com/live \
+  nginx-rtmp-ramdisk:latest
 ```
 
-**With `docker‑compose`:**
+## Docker‑compose
 
-```bash
-docker compose up -d
-```
+`docker-compose.yml` is included with placeholders for the env vars.
 
 ## Streaming
 
-1. **Ingest** (e.g. OBS):  
-   `rtmp://YOUR_HOST/live/stream1`  (any name works)
+| Action | URL |
+| ------ | --- |
+| **Publish** | `rtmp://HOST/live/stream1` |
+| **Watch HLS** | `http://HOST:8080/hls/stream1.m3u8` |
 
-2. **Playback:**  
-   `http://YOUR_HOST:8080/hls/stream1.m3u8`
-
-## Tuning
-
-* Change `hls_fragment` (seconds per segment) and `hls_playlist_length` in `nginx.conf`.
-* Adjust `size=` on the `tmpfs` mount (both in `docker run` and `docker-compose.yml`).
-* Consider fronting with a CDN or reverse‑proxy for production traffic.
-
-## Persistence & Recovery
-
-* **All HLS artefacts live only in RAM** and are removed continuously (`hls_cleanup on`).  
-  They disappear on container restart or memory pressure – ideal for low‑latency live streams without disk wear.
-
-## Security hardening
-
-* Container runs as **nginx** user by default.
-* Health‑check on `http://localhost:8080/` for orchestration systems.
-* Expose only required ports (1935, 8080). Use a firewall if needed.
+When relay is enabled, NGINX pushes whatever is published to `$PASS_URL` as well.
 
 ---
 
-*Generated on 2025-07-14T07:25:34.506680*
+*Generated 2025-07-16T07:48:06.165180*
