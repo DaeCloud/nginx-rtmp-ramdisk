@@ -25,8 +25,8 @@ rtmp {
 
             hls on;
             hls_path /mnt/ramdisk/hls;
-            hls_fragment 3s;
-            hls_playlist_length 60s;
+            hls_fragment 1s;
+            hls_playlist_length 3s;
             hls_cleanup on;
 NGINX_CONF
 
