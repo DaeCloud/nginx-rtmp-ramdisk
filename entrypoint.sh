@@ -63,7 +63,7 @@ http {
         listen 8080;
         server_name _;
 
-        location /hls/ {
+        location / {
             types {
                 application/vnd.apple.mpegurl m3u8;
                 video/mp2t ts;
@@ -76,10 +76,6 @@ http {
             access_log off;
             default_type text/plain;
             return 200 'OK';
-        }
-
-        location / {
-            return 200 "NGINX‑RTMP HLS server running\n";
         }
     }
 }
