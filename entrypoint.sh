@@ -82,7 +82,7 @@ http {
         }
 
         location /stat.xsl {
-            root /usr/local/nginx/html;
+            root /mnt/ramdisk/hls;
         }
 
         location /health {
