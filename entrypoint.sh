@@ -84,7 +84,7 @@ http {
             # XML stylesheet to view RTMP stats.
             # Copy stat.xsl wherever you want
             # and put the full directory path here
-            root /mnt/ramdisk/stat.xsl;
+            root /usr/local/nginx/html;
         }
 
         location /health {
